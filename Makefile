@@ -1,6 +1,5 @@
 SRCS=shell.c
 EXECUTABLE=shell
-
 CC=gcc
 CFLAGS=-ggdb3 -Wall -std=gnu99
 
