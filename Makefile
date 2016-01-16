@@ -1,4 +1,4 @@
-SRCS=main.c shell.c
+SRCS=main.c shell.c io.c
 EXECUTABLE=shell
 CC=gcc
 CFLAGS=-ggdb3 -Wall -std=gnu99

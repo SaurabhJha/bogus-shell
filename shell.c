@@ -1,7 +1,10 @@
-#include <unistd.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <termios.h>
+#include <unistd.h>
 
+#include "io.h"
 #include "shell.h"
 
 int shell_terminal;
@@ -9,6 +12,9 @@ bool shell_is_interactive;
 pid_t shell_pgid;
 struct termios shell_tmodes;
 
+/**
+ * Setting standard I/O file descriptors to correct values.
+ */
 void initialize_shell()
 {
   /* Checking whether standard input is associated with a */
@@ -19,10 +25,10 @@ void initialize_shell()
   /* Kill all process groups not associated with shell terminal */
   /* file descriptor */
   while (tcgetpgrp(shell_terminal) != (shell_pgid = getpgrp())) {
-    kill (shell_pgid, SIGTTIN);
+    kill(shell_pgid, SIGTTIN);
   }
 
-  /* Saving process group id of foreground process */
+  /* Process group id of foreground process */
   shell_pgid = getpgrp();
 
   /* Put standard input file descriptor to foreground */
@@ -30,9 +36,17 @@ void initialize_shell()
   tcgetattr(shell_terminal, &shell_tmodes);
 }
 
+/**
+ * Core shell logic
+ */
 int shell(int argc, char* argv[])
 {
+  char *command_string;
+
   initialize_shell();
 
+  while ((command_string = get_next_command_string())) {
+    printf("%s", command_string);
+  }
   return 0;
 }
