@@ -11,7 +11,7 @@ extern int shell_terminal;
 extern bool shell_is_interactive;
 
 /* Represents the process group of standard input associated with shell's
-   foreground process*/
+   foreground process */
 extern pid_t shell_pgid;
 
 /* Represents information associated with shell's standard file

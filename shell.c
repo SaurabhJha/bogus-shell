@@ -1,8 +1,6 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <termios.h>
 
@@ -10,7 +8,7 @@
 #include "io.h"
 
 /* External variables declared at shell.h. Their purpose is explained
-   at shell.h*/
+   at shell.h */
 int shell_terminal;
 bool shell_is_interactive;
 pid_t shell_pgid;
@@ -18,7 +16,7 @@ struct termios shell_tmodes;
 
 /* Set appropriate variables to associate standard input file descriptor
    to foreground terminal process and killing all other background terminal
-   proceses.*/
+   proceses. */
 void initialize_shell()
 {
   shell_terminal = STDIN_FILENO;
