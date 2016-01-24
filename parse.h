@@ -1,10 +1,10 @@
-/* Maximum number of arguments supported */
-#define MAXLEN 1024
+/* Word or token in input string. */
+typedef char *token;
 
-/* Allowed token seperators */
+/* Tokens can be seperated by space or newline. */
 #define TOKEN_SEPERATOR " \n"
 
-/* Represents a word or a token in a command string */
-typedef char *command_token;
+/* Maximum number of arguments allowed */
+#define MAX_ARGUMENTS 50
 
-void get_array_of_arguments(char *command_string, command_token *array_of_arguments);
+token *get_arguments_array(char *command_string, token *arguments_array);

@@ -2,20 +2,24 @@
 #include <unistd.h>
 #include <termios.h>
 
-/* Represents file descriptor of standard input associated with shell's
-   foreground process */
+/* File descriptor associated with standard input. */
 extern int shell_terminal;
 
-/* Represents whether the shell file descriptor is associated with a
-   foreground process */
+/* Whether current process group is associated with standard input. */
 extern bool shell_is_interactive;
 
-/* Represents the process group of standard input associated with shell's
-   foreground process */
-extern pid_t shell_pgid;
+/* Current process group. */
+extern pid_t shell_pgrp;
 
-/* Represents information associated with shell's standard file
-   descriptor*/
+/* Settings corresponding to terminal device. */
 extern struct termios shell_tmodes;
+
+/* Maximum current path length */
+#define MAX_PATH_LEN 50
+
+/* Prompt symbol*/
+#define PROMPT "=>"
+
+void initialize_shell();
 
 int shell(int argc, char* argv[]);

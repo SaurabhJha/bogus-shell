@@ -1,21 +1,34 @@
+#include <stdlib.h>
 #include <string.h>
 
 #include "parse.h"
 
-/* Takes command string from standard input as argument and creates
-   an array of token strings. The array of arguments is passed as
-   second argument. The command string is divided by spaces and
-   newlines. */
-void get_array_of_arguments(char *command_string, command_token *array_of_arguments)
+/* Get standard array of arguments that can be used in exec family
+   of functions. */
+token *get_arguments_array(char *command_string, token *arguments_array)
 {
-  command_token current_token;
-  int i;
+  token *intermediate_arguments_array, current_token;
+  int i, j;
 
-  array_of_arguments[0] = strtok(command_string, TOKEN_SEPERATOR);
+  intermediate_arguments_array = (token *) malloc(sizeof(token) * MAX_ARGUMENTS);
+  current_token = strtok(command_string, TOKEN_SEPERATOR);
+  intermediate_arguments_array[0] = current_token;
+
   i = 1;
   while ((current_token = strtok(NULL, TOKEN_SEPERATOR)) != NULL) {
-    array_of_arguments[i] = current_token;
-    i += 1;
+    intermediate_arguments_array[i] = current_token;
+    i++;
   }
-  array_of_arguments[i] = NULL;
+
+  arguments_array = (token *) (malloc(sizeof(token) * (i + 1)));
+  j = 0;
+  while (j < i) {
+    arguments_array[j] = intermediate_arguments_array[j];
+    j++;
+  }
+
+  arguments_array[i] = NULL;
+  free(intermediate_arguments_array);
+
+  return arguments_array;
 }

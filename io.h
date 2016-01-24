@@ -1,4 +1,5 @@
-/* Maximum length allowed for a command */
-#define MAXLEN 1024
+/* Maximum permissible length of command */
+#define MAX_COMMAND_LEN 1024
 
-char *get_next_command_string();
+char *get_next_input();
+

@@ -1,25 +1,22 @@
-#include <signal.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include <unistd.h>
 #include <termios.h>
 
-#include "shell.h"
-#include "parse.h"
 #include "io.h"
+#include "parse.h"
+#include "shell.h"
 
-/* External variables declared at shell.h. Their purpose is explained
-   at shell.h */
 int shell_terminal;
 bool shell_is_interactive;
-pid_t shell_pgid;
+pid_t shell_pgrp;
 struct termios shell_tmodes;
 
-/* Set appropriate variables to associate standard input file descriptor
-   to foreground terminal process and killing all other background terminal
-   proceses. */
+/* Set basic variables to move current process to foreground so 
+   that it can accept inputs. */
 void initialize_shell()
 {
   shell_terminal = STDIN_FILENO;
@@ -27,48 +24,45 @@ void initialize_shell()
 
   if (shell_is_interactive) {
     /* Kill all background processes. */
-    while (tcgetpgrp(shell_terminal) != (shell_pgid = getpgrp())) {
-      kill(shell_pgid, SIGTTIN);
+    while (tcgetpgrp(shell_terminal) != (shell_pgrp = getpgrp())) {
+      kill(shell_pgrp, SIGTTIN);
     }
 
-    /* Bring terminal process to foreground. */
-    shell_pgid = getpgrp();
-    tcsetpgrp(shell_terminal, shell_pgid);
-    tcgetattr(shell_terminal, &shell_tmodes);
+    /* Make current process group foreground process. */
+    shell_pgrp = getpgrp();
+    tcsetpgrp(shell_terminal, shell_pgrp);
+    tcgetattr(shell_pgrp, &shell_tmodes);
   }
 }
 
+/* Main shell loop that takes commands and tries to execute them. */
 int shell(int argc, char* argv[])
 {
-  char *command_string, *path_name;
-  command_token array_of_arguments[MAXLEN];
-  pid_t result_of_fork;
-  int execution_status;
+  char *command_string, *current_path;
+  token *arguments_array;
+  pid_t forked_process_id;
+  int forked_process_status;
 
   initialize_shell();
 
-  /* First prompt after the starting of shell. */
-  /* Assumption: The maximum length of a path name is 50 */
-  path_name = malloc(50);
-  path_name = getcwd(path_name, 50);
-  printf("%s:", path_name);
-  command_string = get_next_command_string();
-
+  current_path = (char *) malloc(MAX_PATH_LEN);
+  current_path = getcwd(current_path, MAX_PATH_LEN);
+  printf("%s%s", current_path, PROMPT);
+  command_string = get_next_input();
   while (command_string != NULL) {
-    get_array_of_arguments(command_string, array_of_arguments);
-    if (array_of_arguments[0] != NULL) {
-      result_of_fork = fork();
-      if (result_of_fork == 0) {
-        /* This is child process. */
-        execv(array_of_arguments[0], array_of_arguments);
-      } else {
-        /* This is parent process. */
-        wait(&execution_status);
-      }
-    }
+    arguments_array = get_arguments_array(command_string, arguments_array);
 
-    printf("%s:", path_name);
-    command_string = get_next_command_string();
+    forked_process_id = fork();
+    if (forked_process_id == 0) {
+      /* This is child */
+      execv(arguments_array[0], arguments_array);
+    } else {
+      /* This is parent */
+      wait(&forked_process_status);
+      printf("%s%s", current_path, PROMPT);
+      command_string  = get_next_input();
+    }
   }
+    
   return 0;
 }
